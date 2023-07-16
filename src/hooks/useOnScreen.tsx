@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from 'react';
 
-export function useOnScreen(ref) {
+export function useOnScreen(ref: HTMLLIElement | null) {
     const [isOnScreen, setIsOnScreen] = useState(false);
     const observerRef = useRef<IntersectionObserver | null>(null);
 
