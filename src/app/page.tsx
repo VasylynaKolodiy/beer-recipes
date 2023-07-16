@@ -1,19 +1,23 @@
 'use client'
-import {useEffect, useState} from "react"
+import {useEffect, useRef, useState} from "react"
 import Link from 'next/link'
 import {useAppStore} from "../lib/store/store"
 import "./page.scss"
+import {useOnScreen} from "../hooks/useOnScreen";
 
 const Home = () => {
     const [pageNumber, setPageNumber] = useState(1);
+    const [shift, setShift] = useState(0);
     const {recipes, fetchRecipes, updateRecipes} = useAppStore()
     const [selectedRecipes, setSelectedRecipes] = useState<number[]>([])
+    const elementRef = useRef(null);
+    const isOnScreen = useOnScreen(elementRef);
 
     useEffect(() => {
         fetchRecipes(pageNumber)
     }, [pageNumber])
 
-    const selectRecipe = (event: React.MouseEvent<HTMLLIElement>, id: number) => {
+    const selectRecipe = (event, id) => {
         event.preventDefault();
         (selectedRecipes.includes(id)
                 ? setSelectedRecipes(selectedRecipes.filter(elem => elem !== id))
@@ -28,12 +32,22 @@ const Home = () => {
         setSelectedRecipes([])
     }
 
+    useEffect(() => {
+        if(isOnScreen && !!recipes.length){
+            const newShift = shift + 1;
+            if(newShift * 5 + 15 > recipes.length){
+                setPageNumber(pageNumber + 1);
+            }
+            setShift(newShift)
+        }
+    }, [isOnScreen])
+
     return (
         <main className='main'>
             <h1>Beer recipes</h1>
             <div className='recipes'>
                 <ul className='recipes__list'>
-                    {recipes.slice(0, 15).map((recipe) => (
+                    {recipes.slice(shift * 5, 15 + shift * 5).map((recipe) => (
                         <li className={`recipes__card ${selectedRecipes.includes(recipe.id) ? 'selected' : ''}`}
                             key={recipe.id}
                             onContextMenu={event => selectRecipe(event, recipe.id)}
@@ -46,10 +60,11 @@ const Home = () => {
 
                         </li>
                     ))}
+                    <li className='recipes__observer' ref={elementRef}/>
                 </ul>
                 <div className='recipes__delete'>
                     {selectedRecipes.length > 0 && (
-                        <button className='recipes__delete-button' type='button' onClick={deleteRecipes}>DELETE</button>
+                        <button className='recipes__delete-button' type='text' onClick={deleteRecipes}>DELETE</button>
                     )}
                 </div>
             </div>

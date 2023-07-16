@@ -16,6 +16,13 @@
     justify-content: space-between;
     grid-gap: 20px;
     width: 90%;
+    list-style: none;
+  }
+
+  &__observer{
+    width: 10px;
+    height: 10px;
+    opacity: 0;
   }
 
   &__card {
@@ -33,6 +40,7 @@
     align-items: center;
     justify-content: space-between;
     position: relative;
+    height: calc(100vh - 150px);
 
     &:hover {
       cursor: pointer;
