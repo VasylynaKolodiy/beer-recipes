@@ -1,95 +1,59 @@
-import Image from 'next/image'
-import styles from './page.module.css'
+'use client'
+import {useEffect, useState} from "react"
+import Link from 'next/link'
+import {useAppStore} from "../lib/store/store"
+import "./page.scss"
 
-export default function Home() {
-  return (
-    <main className={styles.main}>
-      <div className={styles.description}>
-        <p>
-          Get started by editing&nbsp;
-          <code className={styles.code}>src/app/page.tsx</code>
-        </p>
-        <div>
-          <a
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{' '}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className={styles.vercelLogo}
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
-        </div>
-      </div>
+const Home = () => {
+    const [pageNumber, setPageNumber] = useState(1);
+    const {recipes, fetchRecipes, updateRecipes} = useAppStore()
+    const [selectedRecipes, setSelectedRecipes] = useState<number[]>([])
 
-      <div className={styles.center}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
+    useEffect(() => {
+        fetchRecipes(pageNumber)
+    }, [pageNumber])
 
-      <div className={styles.grid}>
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Docs <span>-&gt;</span>
-          </h2>
-          <p>Find in-depth information about Next.js features and API.</p>
-        </a>
+    const selectRecipe = (event: React.MouseEvent<HTMLLIElement>, id: number) => {
+        event.preventDefault();
+        (selectedRecipes.includes(id)
+                ? setSelectedRecipes(selectedRecipes.filter(elem => elem !== id))
+                : setSelectedRecipes([...selectedRecipes, id])
+        )
+    }
 
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Learn <span>-&gt;</span>
-          </h2>
-          <p>Learn about Next.js in an interactive course with&nbsp;quizzes!</p>
-        </a>
+    const deleteRecipes = () => {
+        const updatedRecipes = recipes.filter(recipe => !selectedRecipes.includes(recipe.id));
+        updateRecipes(updatedRecipes);
+        (updatedRecipes.length < 15) && setPageNumber(pageNumber + 1)
+        setSelectedRecipes([])
+    }
 
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Templates <span>-&gt;</span>
-          </h2>
-          <p>Explore the Next.js 13 playground.</p>
-        </a>
+    return (
+        <main className='main'>
+            <h1>Beer recipes</h1>
+            <div className='recipes'>
+                <ul className='recipes__list'>
+                    {recipes.slice(0, 15).map((recipe) => (
+                        <li className={`recipes__card ${selectedRecipes.includes(recipe.id) ? 'selected' : ''}`}
+                            key={recipe.id}
+                            onContextMenu={event => selectRecipe(event, recipe.id)}
+                        >
+                            <div className='recipes__name'> {recipe.id}. {recipe.name} </div>
+                            <Link className='recipes__link' href={`/recipe/${recipe.id}`}/>
+                            <div className='recipes__image'>
+                                <img src={recipe.image_url} alt={recipe.name}/>
+                            </div>
 
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Deploy <span>-&gt;</span>
-          </h2>
-          <p>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
-    </main>
-  )
+                        </li>
+                    ))}
+                </ul>
+                <div className='recipes__delete'>
+                    {selectedRecipes.length > 0 && (
+                        <button className='recipes__delete-button' type='button' onClick={deleteRecipes}>DELETE</button>
+                    )}
+                </div>
+            </div>
+        </main>
+    )
 }
+export default Home;
