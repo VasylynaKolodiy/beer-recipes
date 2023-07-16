@@ -6,11 +6,11 @@ import "./page.scss"
 import {useOnScreen} from "../hooks/useOnScreen";
 
 const Home = () => {
-    const [pageNumber, setPageNumber] = useState(1);
-    const [shift, setShift] = useState(0);
+    const [pageNumber, setPageNumber] = useState<number>(1);
+    const [shift, setShift] = useState<number>(0);
     const {recipes, fetchRecipes, updateRecipes} = useAppStore()
     const [selectedRecipes, setSelectedRecipes] = useState<number[]>([])
-    const elementRef = useRef(null);
+    const elementRef = useRef<HTMLLIElement | null>(null);
     const isOnScreen = useOnScreen(elementRef);
 
     useEffect(() => {
