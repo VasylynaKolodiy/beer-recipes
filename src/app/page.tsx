@@ -17,7 +17,7 @@ const Home = () => {
         fetchRecipes(pageNumber)
     }, [pageNumber])
 
-    const selectRecipe = (event, id) => {
+    const selectRecipe = (event: React.MouseEvent<HTMLLIElement>, id: number) => {
         event.preventDefault();
         (selectedRecipes.includes(id)
                 ? setSelectedRecipes(selectedRecipes.filter(elem => elem !== id))
@@ -64,7 +64,7 @@ const Home = () => {
                 </ul>
                 <div className='recipes__delete'>
                     {selectedRecipes.length > 0 && (
-                        <button className='recipes__delete-button' type='text' onClick={deleteRecipes}>DELETE</button>
+                        <button className='recipes__delete-button' type='button' onClick={deleteRecipes}>DELETE</button>
                     )}
                 </div>
             </div>
