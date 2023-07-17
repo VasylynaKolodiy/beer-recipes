@@ -1,7 +1,7 @@
-import { useEffect, useState, useRef } from 'react';
+import {useEffect, useState, useRef, MutableRefObject} from 'react';
 
-export function useOnScreen(ref: HTMLLIElement | null) {
-    const [isOnScreen, setIsOnScreen] = useState(false);
+export function useOnScreen(ref: MutableRefObject<HTMLLIElement | null>) {
+    const [isOnScreen, setIsOnScreen] = useState<boolean>(false);
     const observerRef = useRef<IntersectionObserver | null>(null);
 
     useEffect(() => {
@@ -11,7 +11,9 @@ export function useOnScreen(ref: HTMLLIElement | null) {
     }, []);
 
     useEffect(() => {
-        observerRef.current?.observe(ref.current);
+        if (ref.current) {
+            observerRef.current?.observe(ref.current!);
+        }
 
         return () => {
             observerRef.current?.disconnect();
